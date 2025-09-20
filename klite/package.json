@@ -1,0 +1,27 @@
+{
+  "name": "klite",
+  "version": "0.0.1",
+  "description": "A minimal Kafka-like message queue implementation using SQLite",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "keywords": [
+    "sqlite",
+    "message-queue",
+    "kafka",
+    "queue",
+    "messaging"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "@msgpack/msgpack": "^3.0.0-beta2"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
+  }
+}
