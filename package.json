@@ -20,6 +20,7 @@
     "cors": "^2.8.5",
     "duckdb": "^1.4.0",
     "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
     "parquetjs-lite": "^0.8.7",
     "parquets": "^0.10.10",
     "sqlite3": "^5.1.7"

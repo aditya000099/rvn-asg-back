@@ -52,19 +52,9 @@ const config = {
       consumerGroups: {
         default: {
           partitions: [0],
-          endpoint: "https://api.example.com/analytics",
-          batchSize: 50,
-          interval: "5s",
-        },
-      },
-    },
-    orders: {
-      consumerGroups: {
-        "order-processor": {
-          partitions: [0, 1],
-          endpoint: "https://api.example.com/process-orders",
-          batchSize: 50,
-          interval: "5s",
+          endpoint: "http://localhost:8000/",
+          batchSize: 100,
+          interval: "50s",
         },
       },
     },
