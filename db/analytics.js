@@ -18,21 +18,16 @@ async function runAnalytics() {
     console.log("No parquet files found in the parquet folder.");
     return;
   }
-
   const dbConn = new duckdb.Database(":memory:");
   const conn = dbConn.connect();
 
-  // Build a UNION ALL query to read all parquet files
-  const parquetPaths = files.map((f) => `${PARQUET_DIR}/${f}`);
-  const unionSource = parquetPaths
-    .map((p) => `SELECT * FROM read_parquet('${p}')`)
-    .join(" UNION ALL ");
+  const parquetGlob = `${PARQUET_DIR}/*.parquet`;
 
   console.log("\n--- Analytics Report ---");
 
   const versionQuery = `
     SELECT appVersion, COUNT(*) AS count
-    FROM (${unionSource})
+    FROM read_parquet('${parquetGlob}')
     GROUP BY appVersion
     ORDER BY count DESC;
   `;
@@ -44,7 +39,7 @@ async function runAnalytics() {
 
   const presentWeekQuery = `
     SELECT appVersion, COUNT(*) AS count
-    FROM (${unionSource})
+    FROM read_parquet('${parquetGlob}')
     WHERE DATE_TRUNC('week', CAST(timestamp AS DATE)) = DATE_TRUNC('week', current_date)
     GROUP BY appVersion
     ORDER BY count DESC;
@@ -61,7 +56,7 @@ async function runAnalytics() {
 
   const pastWeekQuery = `
     SELECT appVersion, COUNT(*) AS count
-    FROM (${unionSource})
+    FROM read_parquet('${parquetGlob}')
     WHERE DATE_TRUNC('week', CAST(timestamp AS DATE)) = DATE_TRUNC('week', current_date - INTERVAL '7 days')
     GROUP BY appVersion
     ORDER BY count DESC;
@@ -78,7 +73,7 @@ async function runAnalytics() {
 
   const osQuery = `
     SELECT platform, COUNT(*) as count
-    FROM (${unionSource})
+    FROM read_parquet('${parquetGlob}')
     GROUP BY platform
     ORDER BY count DESC;
   `;
@@ -93,7 +88,7 @@ async function runAnalytics() {
       SELECT
         COUNT(DISTINCT deviceId) FILTER (WHERE CAST(timestamp AS DATE) = current_date) AS dau,
         COUNT(DISTINCT deviceId) FILTER (WHERE CAST(timestamp AS DATE) >= current_date - INTERVAL '30 days') AS mau
-      FROM (${unionSource})
+      FROM read_parquet('${parquetGlob}')
     )
     SELECT * FROM UserActivity;
   `;
