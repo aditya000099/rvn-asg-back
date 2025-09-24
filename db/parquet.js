@@ -20,8 +20,61 @@ const schema = new parquet.ParquetSchema({
   timestamp: { type: "UTF8" },
 });
 
-async function exportToParquet() {
+/**
+ * Write an array of message objects to a new parquet file.
+ * Each message can be either the raw data object or an envelope like { data: {...}, created, offset }
+ * Returns { file, count }
+ */
+export async function writeBatchToParquet(messages) {
+  if (!Array.isArray(messages)) {
+    throw new Error("messages must be an array");
+  }
+
+  if (!fs.existsSync(PARQUET_DIR)) {
+    fs.mkdirSync(PARQUET_DIR);
+  }
+
+  const parquetFile = getNewParquetFileName();
+  const writer = await parquet.ParquetWriter.openFile(schema, parquetFile);
+  let written = 0;
+
+  try {
+    for (const msg of messages) {
+      const data = msg && msg.data ? msg.data : msg;
+      if (!data) continue;
+
+      // normalize timestamp: prefer data.timestamp, fallback to msg.created
+      let ts = data.timestamp || msg.created || new Date().toISOString();
+      try {
+        ts = new Date(ts).toISOString();
+      } catch (e) {
+        ts = String(ts);
+      }
+
+      await writer.appendRow({
+        deviceId: data.deviceId || null,
+        appVersion: data.appVersion || null,
+        platform: data.platform || null,
+        architecture: data.architecture || null,
+        timestamp: ts,
+      });
+
+      written++;
+    }
+  } finally {
+    await writer.close();
+  }
+
+  return { file: parquetFile, count: written };
+}
+
+/**
+ * Keep the older consumer-based exporter available as a named export.
+ * It is no longer auto-invoked on import — call it manually if needed.
+ */
+export async function exportToParquet() {
   const consumer = createConsumer({ db, group: "analytics-group" });
+
   if (!fs.existsSync(PARQUET_DIR)) {
     fs.mkdirSync(PARQUET_DIR);
   }
@@ -86,6 +139,6 @@ async function exportToParquet() {
       `✅ Exported a total of ${totalExported} records in ${fileCount} file(s).`
     );
   }
-}
 
-exportToParquet().catch(console.error);
+  return { totalExported, fileCount };
+}
