@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  backend:
+    build: .
+    container_name: backend
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/db.sqlite:/var/lib/app/db.sqlite
+      - ./data/parquet:/var/lib/app/parquet
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      DB_FILE: /var/lib/app/db.sqlite
+      PARQUET_DIR: /var/lib/app/parquet

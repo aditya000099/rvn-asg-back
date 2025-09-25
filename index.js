@@ -29,7 +29,7 @@ app.post("/", async (req, res) => {
     if (first && first.data) console.log(first.data);
     else console.log(first);
   } else if (req.body.data) {
-    console.log(req.body.data);
+    // console.log(req.body.data);
   } else {
     const { deviceId, appVersion, platform, architecture, timestamp } =
       req.body;
