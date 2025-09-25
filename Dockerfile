@@ -1,4 +1,4 @@
-FROM ghcr.io/nodejs/node:20-alpine
+FROM node:20 AS builder
 
 # Set working directory
 WORKDIR /app
