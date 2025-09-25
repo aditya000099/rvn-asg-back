@@ -2,19 +2,26 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
-# Copy package files first for caching
+# Install build tools for native modules
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3 \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package.json first (cache)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --production --silent
+# Install dependencies (remove --silent for debugging)
+RUN npm install --production
 
-# Copy app code
+# Copy the rest of the code
 COPY . .
 
-# Ensure data dir exists
+# Ensure data folder exists
 RUN mkdir -p /var/lib/app
 
 EXPOSE 8000
 
-# Run app
 CMD ["node", "index.js"]
+
