@@ -1,5 +1,5 @@
 # Use Node.js LTS Debian-based image (better compatibility for native modules)
-FROM node:20-bullseye-slim
+FROM node:20-alpine AS build
 
 # Set working directory
 WORKDIR /app
