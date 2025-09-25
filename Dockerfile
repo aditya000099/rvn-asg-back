@@ -1,5 +1,4 @@
-# Use Node.js LTS Debian-based image (better compatibility for native modules)
-FROM node:20-alpine AS build
+FROM ghcr.io/nodejs/node:20-alpine
 
 # Set working directory
 WORKDIR /app
